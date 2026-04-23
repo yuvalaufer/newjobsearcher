@@ -5,45 +5,70 @@ from datetime import datetime
 
 class JobScraper:
     def __init__(self):
-        # שימוש ב-User-Agent כדי להיראות כמו דפדפן אמיתי
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
         }
 
     def scrape_upwork(self, keywords):
-        print(f"Searching for real jobs: {keywords}...")
+        print(f"Searching for music and tech jobs: {keywords}...")
         found_jobs = []
         
-        # אנחנו משתמשים ב-API חופשי של אתר Jobspresso או מנוע חיפוש משרות דומה
-        # לצורך הדוגמה האופרטיבית, נשתמש בחיפוש דרך אתר שמגיב טוב לבוטים:
-        base_url = "https://remoteok.com/api"
+        # מקור 1: RemoteOK (חזק בטכנולוגיה, DevOps ו-Python)
+        found_jobs.extend(self._search_remote_ok(keywords))
         
+        # מקור 2: גירסה מותאמת לחיפוש משרות מוזיקה וקריאייטיב
+        # הערה: אתרי מוזיקה כמו SoundBetter סגורים יותר, אז נשתמש ב-API של משרות פרילנסר
+        found_jobs.extend(self._search_creative_jobs(keywords))
+        
+        return found_jobs
+
+    def _search_remote_ok(self, keywords):
+        jobs = []
         try:
-            response = requests.get(base_url, headers=self.headers, timeout=10)
+            url = "https://remoteok.com/api"
+            response = requests.get(url, headers=self.headers, timeout=10)
             if response.status_code == 200:
-                all_remote_jobs = response.json()
-                
-                # סינון המשרות לפי מילות המפתח שלך
-                for job in all_remote_jobs:
-                    # בודקים אם אחת ממילות המפתח מופיעה בכותרת או בתיאור
-                    title = job.get('position', '').lower()
-                    description = job.get('description', '').lower()
+                data = response.json()
+                for item in data:
+                    # ב-RemoteOK הפריט הראשון הוא בד"כ טקסט משפטי, נדלג עליו
+                    if not isinstance(item, dict): continue
                     
-                    if any(word.lower() in title or word.lower() in description for word in keywords):
-                        found_jobs.append({
-                            "title": job.get('position'),
+                    title = item.get('position', '').lower()
+                    desc = item.get('description', '').lower()
+                    
+                    if any(word.lower() in title or word.lower() in desc for word in keywords):
+                        jobs.append({
+                            "title": item.get('position'),
                             "platform": "RemoteOK",
-                            "link": job.get('url'),
-                            "budget": f"{job.get('salary_min', 'N/A')} - {job.get('salary_max', 'N/A')}",
+                            "link": item.get('url'),
+                            "budget": f"{item.get('salary_min', 'N/A')}$ - {item.get('salary_max', 'N/A')}$",
                             "date_posted": datetime.now().strftime("%Y-%m-%d")
                         })
-            else:
-                print(f"Failed to fetch from RemoteOK: {response.status_code}")
-        except Exception as e:
-            print(f"Error during scraping: {e}")
+        except: pass
+        return jobs
 
-        # אם לא מצאנו כלום ב-RemoteOK, ננסה עוד מקור (כמו חיפוש ב-GitHub Jobs API חלופי)
-        return found_jobs
+    def _search_creative_jobs(self, keywords):
+        # כאן אנחנו משתמשים בחיפוש ממוקד דרך מנוע ה-Jobs של ספקי תוכן
+        # בשלב זה הבוט יחפש התאמות למשרות 'Creative' ו-'Transcription' (לתרגום)
+        creative_jobs = []
+        try:
+            # שימוש ב-API של Jobspresso למשרות מגוונות
+            url = "https://jobspresso.co/wp-json/wp/v2/job-listings?per_page=50"
+            res = requests.get(url, headers=self.headers, timeout=10)
+            if res.status_code == 200:
+                data = res.json()
+                for item in data:
+                    title = item.get('title', {}).get('rendered', '').lower()
+                    if any(word.lower() in title for word in keywords):
+                        creative_jobs.append({
+                            "title": item.get('title', {}).get('rendered'),
+                            "platform": "Jobspresso",
+                            "link": item.get('link'),
+                            "budget": "Fixed/Project based",
+                            "date_posted": datetime.now().strftime("%Y-%m-%d")
+                        })
+        except: pass
+        return creative_jobs
 
 def save_jobs(jobs, filename):
     if not os.path.exists('data'):
