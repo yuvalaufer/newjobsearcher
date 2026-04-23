@@ -1,0 +1,32 @@
+name: Job Scraper Bot
+
+on:
+  workflow_dispatch: # מאפשר לך להריץ את הבוט ידנית בלחיצת כפתור
+  schedule:
+    - cron: '0 8,20 * * *' # ירוץ כל יום ב-8 בבוקר וב-8 בערב
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Test Scraper
+        run: python test_run.py
+
+      - name: Commit and Push results
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add data/*.json
+          git commit -m "Update job listings" || echo "No changes to commit"
+          git push
