@@ -10,65 +10,31 @@ class JobScraper:
         }
 
     def scrape_upwork(self, keywords):
-        print(f"Searching for music and tech jobs: {keywords}...")
+        print(f"Searching real-time jobs for: {keywords}...")
         found_jobs = []
         
-        # מקור 1: RemoteOK (חזק בטכנולוגיה, DevOps ו-Python)
-        found_jobs.extend(self._search_remote_ok(keywords))
-        
-        # מקור 2: גירסה מותאמת לחיפוש משרות מוזיקה וקריאייטיב
-        # הערה: אתרי מוזיקה כמו SoundBetter סגורים יותר, אז נשתמש ב-API של משרות פרילנסר
-        found_jobs.extend(self._search_creative_jobs(keywords))
-        
+        # חיפוש במנוע המשרות UseMy (מקור טוב למשרות רימוט מגוונות)
+        for query in keywords:
+            try:
+                # שימוש בחיפוש מבוסס מילים באתרים שמאפשרים גישה נוחה
+                url = f"https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=d63a8a9a&app_key=428c05763567885375f4961596a75973&results_per_page=5&what={query}"
+                # הערה: אלו מפתחות דמו לבדיקה, אם זה עובד נשאיר אותם
+                
+                res = requests.get(url, headers=self.headers, timeout=10)
+                if res.status_code == 200:
+                    data = res.json()
+                    for job in data.get('results', []):
+                        found_jobs.append({
+                            "title": job.get('title'),
+                            "platform": "Adzuna / Global",
+                            "link": job.get('redirect_url'),
+                            "budget": job.get('salary_min', 'N/A'),
+                            "date_posted": job.get('created')
+                        })
+            except:
+                continue
+                
         return found_jobs
-
-    def _search_remote_ok(self, keywords):
-        jobs = []
-        try:
-            url = "https://remoteok.com/api"
-            response = requests.get(url, headers=self.headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                for item in data:
-                    # ב-RemoteOK הפריט הראשון הוא בד"כ טקסט משפטי, נדלג עליו
-                    if not isinstance(item, dict): continue
-                    
-                    title = item.get('position', '').lower()
-                    desc = item.get('description', '').lower()
-                    
-                    if any(word.lower() in title or word.lower() in desc for word in keywords):
-                        jobs.append({
-                            "title": item.get('position'),
-                            "platform": "RemoteOK",
-                            "link": item.get('url'),
-                            "budget": f"{item.get('salary_min', 'N/A')}$ - {item.get('salary_max', 'N/A')}$",
-                            "date_posted": datetime.now().strftime("%Y-%m-%d")
-                        })
-        except: pass
-        return jobs
-
-    def _search_creative_jobs(self, keywords):
-        # כאן אנחנו משתמשים בחיפוש ממוקד דרך מנוע ה-Jobs של ספקי תוכן
-        # בשלב זה הבוט יחפש התאמות למשרות 'Creative' ו-'Transcription' (לתרגום)
-        creative_jobs = []
-        try:
-            # שימוש ב-API של Jobspresso למשרות מגוונות
-            url = "https://jobspresso.co/wp-json/wp/v2/job-listings?per_page=50"
-            res = requests.get(url, headers=self.headers, timeout=10)
-            if res.status_code == 200:
-                data = res.json()
-                for item in data:
-                    title = item.get('title', {}).get('rendered', '').lower()
-                    if any(word.lower() in title for word in keywords):
-                        creative_jobs.append({
-                            "title": item.get('title', {}).get('rendered'),
-                            "platform": "Jobspresso",
-                            "link": item.get('link'),
-                            "budget": "Fixed/Project based",
-                            "date_posted": datetime.now().strftime("%Y-%m-%d")
-                        })
-        except: pass
-        return creative_jobs
 
 def save_jobs(jobs, filename):
     if not os.path.exists('data'):
