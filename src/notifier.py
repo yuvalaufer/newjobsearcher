@@ -12,18 +12,20 @@ def send_job_email(recipient_email, jobs):
         print("Missing email credentials.")
         return
 
-    # יצירת תאריך ושעה בפורמט: DD/MM/YYYY HH:MM
     now = datetime.now()
     timestamp = now.strftime("%d/%m/%Y %H:%M")
     
-    # נושא המייל המעודכן לפי הבקשה שלך
-    subject = f"yuval job opportounities {timestamp}"
-    
-    body = f"Hi Yuval, here are the job opportunities found on {timestamp}:\n\n"
-    for job in jobs:
-        body += f"- {job['title']} ({job['platform']})\n"
-        body += f"  Link: {job['link']}\n"
-        body += f"  Budget: {job['budget']}\n\n"
+    # בדיקה אם נמצאו משרות כדי לקבוע את הנושא וגוף המייל
+    if not jobs:
+        subject = f"no new jobs found at {timestamp}"
+        body = f"Hi Yuval, the scan at {timestamp} completed but no new jobs were found."
+    else:
+        subject = f"yuval job opportounities {timestamp}"
+        body = f"Hi Yuval, here are the job opportunities found on {timestamp}:\n\n"
+        for job in jobs:
+            body += f"- {job['title']} ({job['platform']})\n"
+            body += f"  Link: {job['link']}\n"
+            body += f"  Budget: {job['budget']}\n\n"
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
