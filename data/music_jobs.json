@@ -4,9 +4,20 @@
         "platform": "Upwork",
         "link": "https://www.upwork.com/search/jobs/?q=piano%20recording",
         "budget": "Negotiable",
-        "date_posted": "2026-04-23 13:58",
+        "date_posted": "2026-04-23 14:24",
         "tags": [
             "piano recording",
+            "Remote"
+        ]
+    },
+    {
+        "title": "Need help with session pianist",
+        "platform": "Upwork",
+        "link": "https://www.upwork.com/search/jobs/?q=session%20pianist",
+        "budget": "Negotiable",
+        "date_posted": "2026-04-23 14:24",
+        "tags": [
+            "session pianist",
             "Remote"
         ]
     },
@@ -15,9 +26,31 @@
         "platform": "Upwork",
         "link": "https://www.upwork.com/search/jobs/?q=vocal%20harmonies",
         "budget": "Negotiable",
-        "date_posted": "2026-04-23 13:58",
+        "date_posted": "2026-04-23 14:24",
         "tags": [
             "vocal harmonies",
+            "Remote"
+        ]
+    },
+    {
+        "title": "Need help with backing vocals",
+        "platform": "Upwork",
+        "link": "https://www.upwork.com/search/jobs/?q=backing%20vocals",
+        "budget": "Negotiable",
+        "date_posted": "2026-04-23 14:24",
+        "tags": [
+            "backing vocals",
+            "Remote"
+        ]
+    },
+    {
+        "title": "Need help with song translation",
+        "platform": "Upwork",
+        "link": "https://www.upwork.com/search/jobs/?q=song%20translation",
+        "budget": "Negotiable",
+        "date_posted": "2026-04-23 14:24",
+        "tags": [
+            "song translation",
             "Remote"
         ]
     }
