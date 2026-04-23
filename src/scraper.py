@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from datetime import datetime
+import os  # נוסף בשביל ניהול תיקיות
 
 class JobScraper:
     def __init__(self):
@@ -14,11 +15,8 @@ class JobScraper:
         print(f"Searching Upwork for: {keywords}...")
         found_jobs = []
         
-        # בשלב הראשון, אנחנו בונים את המבנה. 
-        # Upwork חוסמים סריקה פשוטה לעיתים קרובות, לכן נתחיל בלוגיקה שתייצר לנו את האובייקטים.
+        # לוגיקה זמנית ליצירת אובייקטים (לצורך בדיקת המערכת)
         for query in keywords:
-            # כאן תבוא בעתיד הקריאה ל-API או ל-BeautifulSoup
-            # לצורך הטסט הראשון, הבוט ייצור "משרה לדוגמה" כדי שנוכל לבדוק את ה-Pipeline
             job = {
                 "title": f"Need help with {query}",
                 "platform": "Upwork",
@@ -32,7 +30,12 @@ class JobScraper:
         return found_jobs
 
 def save_jobs(jobs, filename):
+    # תיקון: יצירת תיקיית data אם היא לא קיימת בשרת
+    if not os.path.exists('data'):
+        os.makedirs('data')
+        print("Created 'data' directory.")
+        
     path = f"data/{filename}"
     with open(path, "w", encoding="utf-8") as f:
         json.dump(jobs, f, indent=4, ensure_ascii=False)
-    print(f"Saved {len(jobs)} jobs to {path}")
+    print(f"Successfully saved {len(jobs)} jobs to {path}")
